@@ -13,6 +13,7 @@ class MyWindow(QMainWindow,Ui_MainWindow):
 		super(MyWindow,self).__init__(parent)
 		self.setupUi(self)
 		self.slot_init()
+		self.changeColor()
 
 	def slot_init(self):
 		self.action_dst_img.triggered.connect(partial(self.label_img.load_img,False))
@@ -20,7 +21,24 @@ class MyWindow(QMainWindow,Ui_MainWindow):
 		self.actionSave_Src.triggered.connect(partial(self.label_img.saveSrc,True))
 		self.actionSave_Mask.triggered.connect(partial(self.label_img.saveSrc,False))
 		self.action_save_as.triggered.connect(partial(self.label_img.save_img))
-		self.Button_poisson.clicked.connect(self.label_img.poissonEdit)
+		self.radio_Local.toggled.connect(partial(self.label_img.SourceMode,self.radio_Local))
+		self.Button_poisson.clicked.connect(partial(self.label_img.poissonEdit,self.radio_source,self.radio_Mixed,
+			self.check_ForeFla,self.Slider_L,self.Slider_H,self.check_ForeIllu,self.Slider_a,self.Slider_b,
+			self.check_ForeColor,self.check_Gray))
+		self.Button_ForeColor.clicked.connect(partial(self.selectColor))
+		self.radio_source.setChecked(True)
+		self.Slider_a.setValue(9)
+		self.Slider_b.setValue(19)
+
+	def changeColor(self):
+		self.label_ForeColor.setStyleSheet('background-color:%s'%self.label_img.setColor.name())
+
+	def selectColor(self):
+		col= QColorDialog.getColor()
+		if col.isValid():
+			self.label_img.setColor=col
+			self.changeColor()
+
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)

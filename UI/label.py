@@ -25,6 +25,8 @@ class MyLabel(QLabel):
 		self.moveMode=False
 		self.zoom=1.0
 		self.showRes=False
+		self.sourceMode=True
+		self.setColor=QColor(255,255,255)
 
 	def init_maskarea(self):
 		self.mask_u=0
@@ -79,13 +81,20 @@ class MyLabel(QLabel):
 			mask=cv2.resize(self.mask,(w,h),cv2.INTER_LINEAR)
 			cv2.imwrite(imgName,mask)
 
+	def SourceMode(self,btn):
+		if btn.isChecked():
+			self.sourceMode=False
+		else:
+			self.sourceMode=True
+		self.display_img()
+
 	def display_img(self):
 		self.showRes=False
 		board=QPixmap(self.width(),self.height())
 		board.fill(Qt.transparent)
 		boPainter=QPainter(board)
 		boPainter.setCompositionMode(QPainter.CompositionMode_Source)
-		if self.dst_img is not None:
+		if self.dst_img is not None and self.sourceMode:
 			img=QPixmap(QImage(cv2.cvtColor(self.dst_img,cv2.COLOR_BGR2RGB).data,self.dst_img.shape[1],self.dst_img.shape[0],QImage.Format_RGB888))
 			img=img.scaledToWidth(self.width())
 			boPainter.drawPixmap(0,0,img)
@@ -93,7 +102,7 @@ class MyLabel(QLabel):
 			img=cv2.merge((self.src_img,self.mask))
 			img=QPixmap(QImage(img.data,self.src_img.shape[1],self.src_img.shape[0],QImage.Format_ARGB32))
 			img=img.scaledToWidth(int((self.width())*self.zoom))
-			if self.dst_img is not None:
+			if self.dst_img is not None and self.sourceMode:
 				imgpainter=QPainter(img)
 				imgpainter.setCompositionMode(QPainter.CompositionMode_DestinationIn)
 				imgpainter.fillRect(img.rect(),QColor(0,0,0,200))
@@ -117,51 +126,85 @@ class MyLabel(QLabel):
 		boPainter.end()
 		self.setPixmap(board)
 
-	def poissonEdit(self):
-		if self.tmpX!=0 or self.tmpY!=0:
-			print(self.tmpX,self.tmpY)
-		if self.dst_img is None or self.src_img is None:
+	def poissonEdit(self,btnNor,btnMix,cheFFla,sliL,sliH,cheIllu,slia,slib,cheFCo,cheGr):
+		if self.sourceMode:
+			if self.tmpX!=0 or self.tmpY!=0:
+				print(self.tmpX,self.tmpY)
+			if self.dst_img is None or self.src_img is None:
+				return
+			w=int(self.zoom*self.dst_img.shape[1])
+			h=int(w/self.src_img.shape[1]*self.src_img.shape[0])
+			x=int(self.posX*self.dst_img.shape[1])
+			y=int(self.posY*self.dst_img.shape[1])
+
+			src=cv2.resize(self.src_img,(w,h),cv2.INTER_LINEAR)
+			mask=cv2.resize(self.mask,(w,h),cv2.INTER_LINEAR)
+
+			img_h,img_w=self.dst_img.shape[0:2]
+
+			times=w/self.mask.shape[1]
+
+			src_u,src_d=max(0,int(times*self.mask_u)),min(src.shape[0],int(times*self.mask_d))
+			src_l,src_r=max(0,int(times*self.mask_l)),min(src.shape[1],int(times*self.mask_r))
+			roi_u,roi_d,roi_l,roi_r=y+src_u,y+src_d,x+src_l,x+src_r
+			if roi_l<0:
+				src_l=src_l-roi_l
+				roi_l=0
+			if roi_u<0:
+				src_u=src_u-roi_u
+				roi_u=0
+			if roi_r>img_w:
+				src_r=img_w-roi_l+src_l
+				roi_r=img_w
+			if roi_d>img_h:
+				src_d=img_h-roi_u+src_u
+				roi_d=img_h
+
+			src=src[src_u:src_d,src_l:src_r]
+			mask=mask[src_u:src_d,src_l:src_r]
+
+			_x=(roi_l+roi_r)//2
+			_y=(roi_u+roi_d)//2
+
+			if btnNor.isChecked():
+				cloneMode=cv2.NORMAL_CLONE
+			elif btnMix.isChecked():
+				cloneMode=cv2.MIXED_CLONE
+			else:
+				cloneMode=cv2.MONOCHROME_TRANSFER
+
+			try:
+				self.result_img=cv2.seamlessClone(src,self.dst_img,mask,(_x,_y),cloneMode)
+			except Exception as e:
+				print(roi_u,roi_d,roi_l,roi_r)
+				print(src_u,src_d,src_l,src_r)
+				return
+			self.display_res()
 			return
-		w=int(self.zoom*self.dst_img.shape[1])
-		h=int(w/self.src_img.shape[1]*self.src_img.shape[0])
-		x=int(self.posX*self.dst_img.shape[1])
-		y=int(self.posY*self.dst_img.shape[1])
-
-		src=cv2.resize(self.src_img,(w,h),cv2.INTER_LINEAR)
-		mask=cv2.resize(self.mask,(w,h),cv2.INTER_LINEAR)
-
-		img_h,img_w=self.dst_img.shape[0:2]
-
-		times=w/self.mask.shape[1]
-
-		src_u,src_d=max(0,int(times*self.mask_u)),min(src.shape[0],int(times*self.mask_d))
-		src_l,src_r=max(0,int(times*self.mask_l)),min(src.shape[1],int(times*self.mask_r))
-		roi_u,roi_d,roi_l,roi_r=y+src_u,y+src_d,x+src_l,x+src_r
-		if roi_l<0:
-			src_l=src_l-roi_l
-			roi_l=0
-		if roi_u<0:
-			src_u=src_u-roi_u
-			roi_u=0
-		if roi_r>img_w:
-			src_r=img_w-roi_l+src_l
-			roi_r=img_w
-		if roi_d>img_h:
-			src_d=img_h-roi_u+src_u
-			roi_d=img_h
-
-		src=src[src_u:src_d,src_l:src_r]
-		mask=mask[src_u:src_d,src_l:src_r]
-
-		_x=(roi_l+roi_r)//2
-		_y=(roi_u+roi_d)//2
-		try:
-			self.result_img=cv2.seamlessClone(src,self.dst_img,mask,(_x,_y),cv2.NORMAL_CLONE)
-		except Exception as e:
-			print(roi_u,roi_d,roi_l,roi_r)
-			print(src_u,src_d,src_l,src_r)
+		if self.src_img is None:
 			return
+		res=self.src_img.copy()
+		if cheFCo.isChecked():
+			if cheGr.isChecked():
+				res=cv2.cvtColor(cv2.cvtColor(res,cv2.COLOR_BGR2GRAY),cv2.COLOR_GRAY2BGR)
+			r=self.setColor.red()
+			g=self.setColor.green()
+			b=self.setColor.blue()
+			ava=(r+g+b)/1.5
+			res=cv2.colorChange(res,self.mask,res,r/ava+0.5,g/ava+0.5,b/ava+0.5)
+		if cheFFla.isChecked():
+			res=cv2.textureFlattening(res,self.mask,res,sliL.value(),sliH.value())
+		if cheIllu.isChecked():
+			res=cv2.illuminationChange(res,self.mask,res,(slia.value()+1)/50,(slib.value()+1)/100)
+
+		self.result_img=res
 		self.display_res()
+
+	def GANEdit(self):
+		return
+
+	def PyramidEdit(self):
+		return
 
 	def resizeEvent(self,event):
 		if self.showRes:
