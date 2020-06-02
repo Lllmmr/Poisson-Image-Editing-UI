@@ -17,6 +17,8 @@ class MyWindow(QMainWindow,Ui_MainWindow):
 	def slot_init(self):
 		self.action_dst_img.triggered.connect(partial(self.label_img.load_img,False))
 		self.action_src_img.triggered.connect(partial(self.label_img.load_img,True))
+		self.actionSave_Src.triggered.connect(partial(self.label_img.saveSrc,True))
+		self.actionSave_Mask.triggered.connect(partial(self.label_img.saveSrc,False))
 		self.action_save_as.triggered.connect(partial(self.label_img.save_img))
 		self.Button_poisson.clicked.connect(self.label_img.poissonEdit)
 

@@ -60,6 +60,25 @@ class MyLabel(QLabel):
 			return
 		cv2.imwrite(imgName,self.result_img)
 
+	def saveSrc(self,is_src):
+		if self.src_img is None:
+			return
+		imgName,imgType=QFileDialog.getSaveFileName(self,"Save","","*.png")
+		if imgName=='':
+			return
+		if self.dst_img is None:
+			w=self.src_img.shape[1]
+			h=self.src_img.shape[0]
+		else:
+			w=int(self.zoom*self.dst_img.shape[1])
+			h=int(w/self.src_img.shape[1]*self.src_img.shape[0])
+		if is_src:
+			src=cv2.resize(self.src_img,(w,h),cv2.INTER_LINEAR)
+			cv2.imwrite(imgName,src)
+		else:
+			mask=cv2.resize(self.mask,(w,h),cv2.INTER_LINEAR)
+			cv2.imwrite(imgName,mask)
+
 	def display_img(self):
 		self.showRes=False
 		board=QPixmap(self.width(),self.height())
