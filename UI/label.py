@@ -200,12 +200,6 @@ class MyLabel(QLabel):
 		self.result_img=res
 		self.display_res()
 
-	def GANEdit(self):
-		return
-
-	def PyramidEdit(self):
-		return
-
 	def resizeEvent(self,event):
 		if self.showRes:
 			self.display_res()

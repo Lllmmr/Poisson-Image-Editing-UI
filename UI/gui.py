@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'gui.ui'
+# Form implementation generated from reading ui file 'gui1.ui'
 #
 # Created by: PyQt5 UI code generator 5.14.2
 #
@@ -13,7 +13,7 @@ from label import *
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(917, 734)
+        MainWindow.resize(917, 760)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -289,36 +289,12 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.Button_poisson.sizePolicy().hasHeightForWidth())
         self.Button_poisson.setSizePolicy(sizePolicy)
-        self.Button_poisson.setMinimumSize(QtCore.QSize(240, 60))
+        self.Button_poisson.setMinimumSize(QtCore.QSize(240, 50))
         font = QtGui.QFont()
         font.setPointSize(16)
         self.Button_poisson.setFont(font)
         self.Button_poisson.setObjectName("Button_poisson")
         self.verticalLayout.addWidget(self.Button_poisson)
-        self.Button_Pyramid = QtWidgets.QPushButton(self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Button_Pyramid.sizePolicy().hasHeightForWidth())
-        self.Button_Pyramid.setSizePolicy(sizePolicy)
-        self.Button_Pyramid.setMinimumSize(QtCore.QSize(240, 60))
-        font = QtGui.QFont()
-        font.setPointSize(16)
-        self.Button_Pyramid.setFont(font)
-        self.Button_Pyramid.setObjectName("Button_Pyramid")
-        self.verticalLayout.addWidget(self.Button_Pyramid)
-        self.Button_GAN = QtWidgets.QPushButton(self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Button_GAN.sizePolicy().hasHeightForWidth())
-        self.Button_GAN.setSizePolicy(sizePolicy)
-        self.Button_GAN.setMinimumSize(QtCore.QSize(240, 60))
-        font = QtGui.QFont()
-        font.setPointSize(16)
-        self.Button_GAN.setFont(font)
-        self.Button_GAN.setObjectName("Button_GAN")
-        self.verticalLayout.addWidget(self.Button_GAN)
         self.horizontalLayout.addWidget(self.frame)
         self.gridLayout.addLayout(self.horizontalLayout, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -371,8 +347,6 @@ class Ui_MainWindow(object):
         self.Button_ForeColor.setText(_translate("MainWindow", "Color"))
         self.check_Gray.setText(_translate("MainWindow", "Gray"))
         self.Button_poisson.setText(_translate("MainWindow", "Poisson Image Editing"))
-        self.Button_Pyramid.setText(_translate("MainWindow", "Convolution Pyramids"))
-        self.Button_GAN.setText(_translate("MainWindow", "GP-GAN"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuOpen.setTitle(_translate("MainWindow", "Open"))
         self.action_dst_img.setText(_translate("MainWindow", "dst image"))
