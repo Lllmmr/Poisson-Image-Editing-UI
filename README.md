@@ -8,7 +8,13 @@
 
 ### 运行
 
-可以直接在release里下载`Poisson.zip`，解压后运行`dist`目录下的main.exe文件即可
+可以直接在release里下载`Poisson.zip`，或者通过网盘下载：
+
+[北大网盘](https://disk.pku.edu.cn:443/link/97E3836C9F43ADA81F8978115A0EC963)（有效期限：2020-07-03 23:59）
+
+[百度网盘](https://pan.baidu.com/s/1vov3cu_S7GUWwwrvuuF47w)（提取码: nmfq）
+
+解压后运行`dist`目录下的main.exe文件即可
 
 若要运行源代码需要`python3`环境
 
