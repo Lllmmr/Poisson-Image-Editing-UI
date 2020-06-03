@@ -13,7 +13,7 @@
 需要安装`pyqt5`, `numpy`, `opencv`
 
 ```
-$ pip install pyqt5 numpy opencv-python
+$ pip install PyQt5 numpy opencv-python
 ```
 
 下载该项目到本地，运行`main.py`即可
