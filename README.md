@@ -1,12 +1,12 @@
-##Poisson Image Editing UI
+## Poisson Image Editing UI
 
 这是一个能够进行泊松图像编辑的图形用户界面应用，是算法设计与分析课程project的简化版
 
 该简化版仅保留泊松图像编辑的部分，以解决完整版GUI环境配置困难、深度学习模型文件过大导致难以运行的问题
 
-完整版见https://github.com/Lllmmr/Image-Blending-GUI
+完整版见[Image Blending GUI](https://github.com/Lllmmr/Image-Blending-GUI)
 
-###运行
+### 运行
 
 该项目在`python 3`下运行
 
@@ -18,9 +18,9 @@ $ pip install pyqt5 numpy opencv-python
 
 下载该项目到本地，运行`main.py`即可
 
-###操作指南
+### 操作指南
 
-####图片操作：
+#### 图片操作：
 
 `File->Open->dst_img/src_img`加载目标（背景）图像
 
@@ -36,7 +36,7 @@ $ pip install pyqt5 numpy opencv-python
 
 `File->Save As`将图像编辑的结果保存到本地
 
-####按键及功能：
+#### 按键及功能：
 
 右侧上方按键为对各种图像编辑模式的选择，模式都选择完后，即可按右侧最下方`Poisson Image Editing`按键进行图像编辑
 
