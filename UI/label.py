@@ -35,7 +35,7 @@ class MyLabel(QLabel):
 		self.mask_r=self.mask.shape[1]
 
 	def load_img(self,is_src):
-		imgName,imgType=QFileDialog.getOpenFileName(self, "Open", "", "*.jpg;;*.png")
+		imgName,imgType=QFileDialog.getOpenFileName(self, "Open", "", "*.jpg *.png")
 		if imgName=='':
 			return
 		if is_src:
@@ -125,46 +125,60 @@ class MyLabel(QLabel):
 		boPainter.drawPixmap(0,0,dis)
 		boPainter.end()
 		self.setPixmap(board)
+		
+	def getEditSrc(self,srcImg=None,fitDst=True):
+		if srcImg is None:
+			srcImg=self.src_img
+		if fitDst:
+			if self.tmpX!=0 or self.tmpY!=0:
+				print(self.tmpX,self.tmpY)
+			w=int(self.zoom*self.dst_img.shape[1])
+			h=int(w/srcImg.shape[1]*srcImg.shape[0])
+			x=int(self.posX*self.dst_img.shape[1])	
+			y=int(self.posY*self.dst_img.shape[1])
+			src=cv2.resize(srcImg,(w,h),cv2.INTER_LINEAR)
+			mask=cv2.resize(self.mask,(w,h),cv2.INTER_LINEAR)		
+
+			img_h,img_w=self.dst_img.shape[0:2]	
+
+			times=w/self.mask.shape[1]
+		else:
+			h,w=srcImg.shape[0:2]
+			img_h,img_w=h,w
+			x,y=0,0
+			src=srcImg.copy()
+			mask=self.mask.copy()
+			times=1
+
+		src_u,src_d=max(0,int(times*self.mask_u)),min(src.shape[0],int(times*self.mask_d))
+		src_l,src_r=max(0,int(times*self.mask_l)),min(src.shape[1],int(times*self.mask_r))
+		roi_u,roi_d,roi_l,roi_r=y+src_u,y+src_d,x+src_l,x+src_r
+		if roi_l<0:
+			src_l=src_l-roi_l
+			roi_l=0
+		if roi_u<0:
+			src_u=src_u-roi_u
+			roi_u=0
+		if roi_r>img_w:
+			src_r=img_w-roi_l+src_l
+			roi_r=img_w
+		if roi_d>img_h:
+			src_d=img_h-roi_u+src_u
+			roi_d=img_h
+
+		src=src[src_u:src_d,src_l:src_r]
+		mask=mask[src_u:src_d,src_l:src_r]
+		_x=(roi_l+roi_r)//2
+		_y=(roi_u+roi_d)//2
+		return src,mask,_x,_y
+
 
 	def poissonEdit(self,btnNor,btnMix,cheFFla,sliL,sliH,cheIllu,slia,slib,cheFCo,cheGr):
 		if self.sourceMode:
-			if self.tmpX!=0 or self.tmpY!=0:
-				print(self.tmpX,self.tmpY)
 			if self.dst_img is None or self.src_img is None:
 				return
-			w=int(self.zoom*self.dst_img.shape[1])
-			h=int(w/self.src_img.shape[1]*self.src_img.shape[0])
-			x=int(self.posX*self.dst_img.shape[1])
-			y=int(self.posY*self.dst_img.shape[1])
 
-			src=cv2.resize(self.src_img,(w,h),cv2.INTER_LINEAR)
-			mask=cv2.resize(self.mask,(w,h),cv2.INTER_LINEAR)
-
-			img_h,img_w=self.dst_img.shape[0:2]
-
-			times=w/self.mask.shape[1]
-
-			src_u,src_d=max(0,int(times*self.mask_u)),min(src.shape[0],int(times*self.mask_d))
-			src_l,src_r=max(0,int(times*self.mask_l)),min(src.shape[1],int(times*self.mask_r))
-			roi_u,roi_d,roi_l,roi_r=y+src_u,y+src_d,x+src_l,x+src_r
-			if roi_l<0:
-				src_l=src_l-roi_l
-				roi_l=0
-			if roi_u<0:
-				src_u=src_u-roi_u
-				roi_u=0
-			if roi_r>img_w:
-				src_r=img_w-roi_l+src_l
-				roi_r=img_w
-			if roi_d>img_h:
-				src_d=img_h-roi_u+src_u
-				roi_d=img_h
-
-			src=src[src_u:src_d,src_l:src_r]
-			mask=mask[src_u:src_d,src_l:src_r]
-
-			_x=(roi_l+roi_r)//2
-			_y=(roi_u+roi_d)//2
+			src,mask,_x,_y=self.getEditSrc()
 
 			if btnNor.isChecked():
 				cloneMode=cv2.NORMAL_CLONE
@@ -176,6 +190,7 @@ class MyLabel(QLabel):
 			try:
 				self.result_img=cv2.seamlessClone(src,self.dst_img,mask,(_x,_y),cloneMode)
 			except Exception as e:
+				print(e)
 				print(roi_u,roi_d,roi_l,roi_r)
 				print(src_u,src_d,src_l,src_r)
 				return
@@ -185,13 +200,33 @@ class MyLabel(QLabel):
 			return
 		res=self.src_img.copy()
 		if cheFCo.isChecked():
-			if cheGr.isChecked():
-				res=cv2.cvtColor(cv2.cvtColor(res,cv2.COLOR_BGR2GRAY),cv2.COLOR_GRAY2BGR)
 			r=self.setColor.red()
 			g=self.setColor.green()
 			b=self.setColor.blue()
-			ava=(r+g+b)/1.5
-			res=cv2.colorChange(res,self.mask,res,r/ava+0.5,g/ava+0.5,b/ava+0.5)
+			if r+g+b!=765:
+				_b,_g,_r=cv2.split(cv2.bitwise_and(res,cv2.merge((self.mask,self.mask,self.mask))))
+				num=np.sum(self.mask/255)
+				mulr,mulg,mulb=r*num/np.sum(_r),g*num/np.sum(_g),b*num/np.sum(_b)
+				mulr,mulg,mulb=mulr**0.5,mulg**0.5,mulb**0.5
+				if mulr<0.5:
+					mulr=0.5
+				if mulr>2.5:
+					mulr=2.5
+				if mulg<0.5:
+					mulg=0.5
+				if mulg>2.5:
+					mulg=2.5
+				if mulb<0.5:
+					mulb=0.5
+				if mulb>2.5:
+					mulb=2.5
+				print(mulr,mulg,mulb)
+				res=cv2.colorChange(res,self.mask,mulr,mulg,mulb)
+			if cheGr.isChecked():
+				dst=cv2.cvtColor(cv2.cvtColor(self.src_img,cv2.COLOR_BGR2GRAY),cv2.COLOR_GRAY2BGR)
+				src,mask,_x,_y=self.getEditSrc(res,False)
+				res=cv2.seamlessClone(src,dst,mask,(_x,_y),cv2.NORMAL_CLONE)
+
 		if cheFFla.isChecked():
 			res=cv2.textureFlattening(res,self.mask,res,sliL.value(),sliH.value())
 		if cheIllu.isChecked():
