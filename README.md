@@ -8,15 +8,17 @@
 
 ### 运行
 
-该项目在`python 3`下运行
+可以直接在release里下载`Poisson.zip`，解压后运行`dist`目录下的main.exe文件即可
 
-需要安装`pyqt5`, `numpy`, `opencv`
+若要运行源代码需要`python3`环境
+
+并安装`pyqt5`,`pyqt5-tools`, `numpy`, `opencv`
 
 ```
-$ pip install PyQt5 numpy opencv-python
+$ pip install PyQt5 pyqt5-tools numpy opencv-python
 ```
 
-下载该项目到本地，运行`main.py`即可
+下载源代码到本地，运行`main.py`即可
 
 ### 操作指南
 
